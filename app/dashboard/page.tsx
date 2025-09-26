@@ -4,10 +4,10 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
+import { useTranslation } from "react-i18next"
 import {
   Thermometer,
   Droplets,
@@ -22,7 +22,6 @@ import {
   Brain,
   BarChart3,
 } from "lucide-react"
-import Image from "next/image"
 
 interface SensorData {
   temperature: number
@@ -93,54 +92,54 @@ const getStatusColor = (value: number, min: number, max: number) => {
   return "default"
 }
 
-const getAIInsights = (data: SensorData) => {
+const getAIInsights = (data: SensorData, t: any) => {
   const insights = []
 
   if (data.temperature > 30) {
-    insights.push("Temperature is elevated - consider increasing water circulation")
+    insights.push(t("dashboard.temperatureElevated"))
   } else if (data.temperature < 26) {
-    insights.push("Temperature is low - monitor fish behavior closely")
+    insights.push(t("dashboard.temperatureLowMonitor"))
   }
 
   if (data.ph < 7.0) {
-    insights.push("pH is slightly acidic - check alkalinity levels")
+    insights.push(t("dashboard.phAcidic"))
   } else if (data.ph > 8.0) {
-    insights.push("pH is elevated - consider water treatment")
+    insights.push(t("dashboard.phElevated"))
   }
 
   if (data.turbidity > 45) {
-    insights.push("High turbidity detected - filtration system check recommended")
+    insights.push(t("dashboard.turbidityHighFilter"))
   }
 
   if (insights.length === 0) {
-    insights.push("All parameters within optimal ranges - system performing well")
+    insights.push(t("dashboard.allOptimal"))
   }
 
   return insights
 }
 
-const isOutOfRange = (data: SensorData) => {
+const isOutOfRange = (data: SensorData, t: any) => {
   const alerts = []
 
   if (data.temperature > 32) {
-    alerts.push({ type: "temperature", message: "Temperature too high (>32°C)", value: data.temperature })
+    alerts.push({ type: "temperature", message: t("dashboard.temperatureHigh"), value: data.temperature })
   }
   if (data.temperature < 25) {
-    alerts.push({ type: "temperature", message: "Temperature too low (<25°C)", value: data.temperature })
+    alerts.push({ type: "temperature", message: t("dashboard.temperatureLow"), value: data.temperature })
   }
 
   if (data.ph < 6.5) {
-    alerts.push({ type: "ph", message: "pH too low (<6.5)", value: data.ph })
+    alerts.push({ type: "ph", message: t("dashboard.phLow"), value: data.ph })
   }
   if (data.ph > 8.5) {
-    alerts.push({ type: "ph", message: "pH too high (>8.5)", value: data.ph })
+    alerts.push({ type: "ph", message: t("dashboard.phHigh"), value: data.ph })
   }
 
   if (data.turbidity > 60) {
-    alerts.push({ type: "turbidity", message: "Turbidity too high (>60 NTU)", value: data.turbidity })
+    alerts.push({ type: "turbidity", message: t("dashboard.turbidityHigh"), value: data.turbidity })
   }
   if (data.turbidity < 10) {
-    alerts.push({ type: "turbidity", message: "Turbidity too low (<10 NTU)", value: data.turbidity })
+    alerts.push({ type: "turbidity", message: t("dashboard.turbidityLow"), value: data.turbidity })
   }
 
   return alerts
@@ -154,6 +153,7 @@ export default function Dashboard() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
   const [dailyTrendData] = useState(generateDailyTrendData())
   const [weeklyTrendData] = useState(generateWeeklyTrendData())
+  const { t } = useTranslation("common")
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -164,39 +164,30 @@ export default function Dashboard() {
     return () => clearInterval(interval)
   }, [])
 
-  const insights = getAIInsights(sensorData)
-  const alerts = isOutOfRange(sensorData)
+  const insights = getAIInsights(sensorData, t)
+  const alerts = isOutOfRange(sensorData, t)
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm">
+        <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/images/aquavise-logo.jpeg"
-                  alt="AquaVise"
-                  width={60}
-                  height={20}
-                  className="object-contain"
-                />
-              </div>
-              <Separator orientation="vertical" className="h-6" />
+              <h1 className="text-2xl font-semibold">{t("dashboard.title")}</h1>
               <Badge variant="outline" className="text-xs">
                 <div className="h-2 w-2 bg-green-500 rounded-full mr-2 animate-pulse" />
-                Live Demo
+                {t("dashboard.liveDemo")}
               </Badge>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
-              Last update: {lastUpdate.toLocaleTimeString()}
+              {t("dashboard.lastUpdate")}: {lastUpdate.toLocaleTimeString()}
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="px-6 py-6 space-y-6">
         {alerts.length > 0 && (
           <div className="space-y-2">
             {alerts.map((alert, index) => (
@@ -206,14 +197,14 @@ export default function Dashboard() {
               >
                 <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="font-medium text-red-700 dark:text-red-400">Water Quality Alert</p>
+                  <p className="font-medium text-red-700 dark:text-red-400">{t("dashboard.waterQualityAlerts")}</p>
                   <p className="text-sm text-red-600 dark:text-red-300">
-                    {alert.message} - Current: {alert.value}
+                    {alert.message} - {t("dashboard.current")}: {alert.value}
                     {alert.type === "temperature" ? "°C" : alert.type === "ph" ? "" : " NTU"}
                   </p>
                 </div>
                 <Badge variant="destructive" className="bg-red-500 text-white">
-                  Critical
+                  {t("dashboard.criticalAlert")}
                 </Badge>
               </div>
             ))}
@@ -226,13 +217,15 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Thermometer className="h-4 w-4 text-orange-500" />
-                  Temperature
+                  {t("dashboard.temperature")}
                   {(sensorData.temperature > 32 || sensorData.temperature < 25) && (
                     <AlertTriangle className="h-4 w-4 text-red-500" />
                   )}
                 </CardTitle>
                 <Badge variant={getStatusColor(sensorData.temperature, 25, 32)}>
-                  {getStatusColor(sensorData.temperature, 25, 32) === "default" ? "Optimal" : "Monitor"}
+                  {getStatusColor(sensorData.temperature, 25, 32) === "default"
+                    ? t("dashboard.optimal")
+                    : t("dashboard.monitor")}
                 </Badge>
               </div>
             </CardHeader>
@@ -246,11 +239,13 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Droplets className="h-4 w-4 text-blue-500" />
-                  pH Level
+                  {t("dashboard.phLevel")}
                   {(sensorData.ph < 6.5 || sensorData.ph > 8.5) && <AlertTriangle className="h-4 w-4 text-red-500" />}
                 </CardTitle>
                 <Badge variant={getStatusColor(sensorData.ph, 6.5, 8.5)}>
-                  {getStatusColor(sensorData.ph, 6.5, 8.5) === "default" ? "Optimal" : "Monitor"}
+                  {getStatusColor(sensorData.ph, 6.5, 8.5) === "default"
+                    ? t("dashboard.optimal")
+                    : t("dashboard.monitor")}
                 </Badge>
               </div>
             </CardHeader>
@@ -263,14 +258,16 @@ export default function Dashboard() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-teal-500" />
-                  Turbidity
+                  <Eye className="h-5 w-5 text-teal-500" />
+                  {t("dashboard.turbidity")}
                   {(sensorData.turbidity > 60 || sensorData.turbidity < 10) && (
                     <AlertTriangle className="h-4 w-4 text-red-500" />
                   )}
                 </CardTitle>
                 <Badge variant={getStatusColor(sensorData.turbidity, 10, 60)}>
-                  {getStatusColor(sensorData.turbidity, 10, 60) === "default" ? "Clear" : "Monitor"}
+                  {getStatusColor(sensorData.turbidity, 10, 60) === "default"
+                    ? t("dashboard.clear")
+                    : t("dashboard.monitor")}
                 </Badge>
               </div>
             </CardHeader>
@@ -286,9 +283,9 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <Fish className="h-5 w-5 text-primary" />
-                  Equipment Control
+                  {t("dashboard.equipmentControl")}
                 </CardTitle>
-                <CardDescription>Manage your aquaculture systems</CardDescription>
+                <CardDescription>{t("dashboard.manageAquaculture")}</CardDescription>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -300,8 +297,10 @@ export default function Dashboard() {
                     <PowerOff className="h-5 w-5 text-muted-foreground" />
                   )}
                   <div>
-                    <p className="font-medium">Aerator System</p>
-                    <p className="text-sm text-muted-foreground">{aeratorOn ? "Running" : "Stopped"}</p>
+                    <p className="font-medium">{t("dashboard.aeratorSystem")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {aeratorOn ? t("dashboard.running") : t("dashboard.stopped")}
+                    </p>
                   </div>
                 </div>
                 <Button
@@ -309,7 +308,7 @@ export default function Dashboard() {
                   size="sm"
                   onClick={() => setAeratorOn(!aeratorOn)}
                 >
-                  {aeratorOn ? "Turn Off" : "Turn On"}
+                  {aeratorOn ? t("dashboard.turnOff") : t("dashboard.turnOn")}
                 </Button>
               </div>
 
@@ -321,8 +320,10 @@ export default function Dashboard() {
                     <PowerOff className="h-5 w-5 text-muted-foreground" />
                   )}
                   <div>
-                    <p className="font-medium">Wastewater Pump</p>
-                    <p className="text-sm text-muted-foreground">{wastewaterPumpOn ? "Running" : "Stopped"}</p>
+                    <p className="font-medium">{t("dashboard.wastewaterPump")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {wastewaterPumpOn ? t("dashboard.running") : t("dashboard.stopped")}
+                    </p>
                   </div>
                 </div>
                 <Button
@@ -330,7 +331,7 @@ export default function Dashboard() {
                   size="sm"
                   onClick={() => setWastewaterPumpOn(!wastewaterPumpOn)}
                 >
-                  {wastewaterPumpOn ? "Turn Off" : "Turn On"}
+                  {wastewaterPumpOn ? t("dashboard.turnOff") : t("dashboard.turnOn")}
                 </Button>
               </div>
 
@@ -342,8 +343,10 @@ export default function Dashboard() {
                     <PowerOff className="h-5 w-5 text-muted-foreground" />
                   )}
                   <div>
-                    <p className="font-medium">Freshwater Pump</p>
-                    <p className="text-sm text-muted-foreground">{freshwaterPumpOn ? "Running" : "Stopped"}</p>
+                    <p className="font-medium">{t("dashboard.freshwaterPump")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {freshwaterPumpOn ? t("dashboard.running") : t("dashboard.stopped")}
+                    </p>
                   </div>
                 </div>
                 <Button
@@ -351,7 +354,7 @@ export default function Dashboard() {
                   size="sm"
                   onClick={() => setFreshwaterPumpOn(!freshwaterPumpOn)}
                 >
-                  {freshwaterPumpOn ? "Turn Off" : "Turn On"}
+                  {freshwaterPumpOn ? t("dashboard.turnOff") : t("dashboard.turnOn")}
                 </Button>
               </div>
             </CardContent>
@@ -361,27 +364,27 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Brain className="h-5 w-5 text-primary" />
-                AI Assistant
+                {t("dashboard.aiAssistant")}
               </CardTitle>
-              <CardDescription>Intelligent insights and recommendations</CardDescription>
+              <CardDescription>{t("dashboard.intelligentInsights")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Suggestions */}
               <div>
                 <h4 className="font-medium mb-3 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-blue-500" />
-                  Current Suggestions
+                  {t("dashboard.currentSuggestions")}
                 </h4>
                 <div className="space-y-2">
                   {aeratorOn ? (
                     <div className="flex items-start gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
                       <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm">Aeration system is active - maintaining optimal oxygen levels</p>
+                      <p className="text-sm">{t("dashboard.aerationActive")}</p>
                     </div>
                   ) : (
                     <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
                       <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm">Consider activating aeration to maintain oxygen levels</p>
+                      <p className="text-sm">{t("dashboard.considerAeration")}</p>
                     </div>
                   )}
                 </div>
@@ -391,7 +394,7 @@ export default function Dashboard() {
               <div>
                 <h4 className="font-medium mb-3 flex items-center gap-2">
                   <Eye className="h-4 w-4 text-teal-500" />
-                  Real-time Insights
+                  {t("dashboard.realtimeInsights")}
                 </h4>
                 <div className="space-y-2">
                   {insights.map((insight, index) => (
@@ -410,13 +413,10 @@ export default function Dashboard() {
               <div>
                 <h4 className="font-medium mb-3 flex items-center gap-2">
                   <Clock className="h-4 w-4 text-purple-500" />
-                  24-Hour Forecast
+                  {t("dashboard.forecast24h")}
                 </h4>
                 <div className="p-3 rounded-lg bg-muted/50 border border-border/50">
-                  <p className="text-sm text-muted-foreground">
-                    Based on current trends: Temperature expected to remain stable, pH levels may fluctuate slightly due
-                    to feeding schedule. Recommend monitoring turbidity after next feeding cycle.
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("dashboard.forecastStable")}</p>
                 </div>
               </div>
             </CardContent>
@@ -428,15 +428,15 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-primary" />
-              Daily/Weekly Trends
+              {t("dashboard.trendsChart")}
             </CardTitle>
-            <CardDescription>Historical sensor data trends and patterns</CardDescription>
+            <CardDescription>{t("dashboard.historicalData")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="daily" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="daily">Daily (24h)</TabsTrigger>
-                <TabsTrigger value="weekly">Weekly (7d)</TabsTrigger>
+                <TabsTrigger value="daily">{t("dashboard.daily")}</TabsTrigger>
+                <TabsTrigger value="weekly">{t("dashboard.weekly")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="daily" className="space-y-4">

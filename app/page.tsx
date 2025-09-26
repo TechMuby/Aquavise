@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useTranslation } from "react-i18next"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const [isDemoLoading, setIsDemoLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const { t } = useTranslation("common")
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,28 +65,26 @@ export default function LoginPage() {
               priority
             />
           </div>
-          <p className="text-muted-foreground text-balance">Smart aquaculture monitoring with AI-powered insights</p>
+          <p className="text-muted-foreground text-balance">{t("auth.smartAquaculture")}</p>
         </div>
 
         <Card className="backdrop-blur-sm bg-card/80 border-border/50 shadow-2xl">
           <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-2xl font-semibold">Welcome Back</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Access your aquaculture monitoring dashboard
-            </CardDescription>
+            <CardTitle className="text-2xl font-semibold">{t("auth.welcomeBack")}</CardTitle>
+            <CardDescription className="text-muted-foreground">{t("auth.accessDashboard")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
-                  Email Address
+                  {t("auth.emailAddress")}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder={t("auth.enterEmail")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-12"
@@ -95,14 +95,14 @@ export default function LoginPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">
-                  Password
+                  {t("auth.password")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder={t("auth.enterPassword")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 h-12"
@@ -115,10 +115,10 @@ export default function LoginPage() {
                 {isLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                    Signing In...
+                    {t("auth.signingIn")}
                   </div>
                 ) : (
-                  "Sign In"
+                  t("auth.signIn")
                 )}
               </Button>
             </form>
@@ -128,7 +128,7 @@ export default function LoginPage() {
                 <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or try demo</span>
+                <span className="bg-card px-2 text-muted-foreground">{t("auth.orTryDemo")}</span>
               </div>
             </div>
 
@@ -136,8 +136,8 @@ export default function LoginPage() {
               <div className="flex items-center gap-3 p-4 rounded-lg bg-accent/50 border border-border/50">
                 <Fish className="h-5 w-5 text-primary" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium">Demo Environment</p>
-                  <p className="text-xs text-muted-foreground">Explore with simulated sensor data</p>
+                  <p className="text-sm font-medium">{t("auth.demoEnvironment")}</p>
+                  <p className="text-xs text-muted-foreground">{t("auth.exploreSimulated")}</p>
                 </div>
               </div>
 
@@ -151,22 +151,20 @@ export default function LoginPage() {
                 {isDemoLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
-                    Connecting...
+                    {t("auth.connecting")}
                   </div>
                 ) : (
-                  "Demo Account"
+                  t("auth.demoAccount")
                 )}
               </Button>
             </div>
 
-            <div className="text-center text-xs text-muted-foreground">
-              This demo showcases AquaVise monitoring capabilities with simulated data
-            </div>
+            <div className="text-center text-xs text-muted-foreground">{t("auth.demoShowcase")}</div>
           </CardContent>
         </Card>
 
         <div className="mt-8 text-center text-xs text-muted-foreground">
-          <p>Monitoring water quality • Optimizing aquaculture • Powered by AI</p>
+          <p>{t("auth.monitoringOptimizing")}</p>
         </div>
       </div>
     </div>
